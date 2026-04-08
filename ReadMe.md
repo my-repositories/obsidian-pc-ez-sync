@@ -3,7 +3,7 @@
 Auto pull on open and push on close
 
 ## Windows
-- Установить расширение [PC ez Sync](https://github.com/my-repositories/obsidian-pc-ez-sync)
+- Установить расширение [PC ez Sync](https://github.com/my-repositories/obsidian-pc-ez-sync/releases/latest)
 - Положить расширение в `<VAULT>/.obsidian/plugins/pc-ez-sync`
 
 ## Android
