@@ -35,7 +35,7 @@ lg2 config user.name "Aleksandr Loktionov"
 lg2 config user.email "loktionov129@gmail.com"
 
 ```
-- Создать команды `obsidian/pull` и `obsidian/push`
+- Создать команды `obsidian/pull` и `obsidian/push` в приложении `Shortcuts`
 ```sh
   jump Obsidian
 ```
@@ -43,5 +43,5 @@ lg2 config user.email "loktionov129@gmail.com"
   sh "./${REPO_NAME}/.obsidian/ios_sync_{push|pull}.sh"
 ```
  ![](assets/a-shell_sync.png)
-- Настроить Выполнение этих команд при открытии/закрытии Obsidian
+- Настроить Выполнение этих команд при открытии/закрытии Obsidian в приложении `Shortcuts`
  ![](assets/apple_shortcuts.png)
