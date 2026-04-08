@@ -6,6 +6,15 @@ Auto pull on open and push on close
 - Установить расширение [PC ez Sync](https://github.com/my-repositories/obsidian-pc-ez-sync)
 - Положить расширение в `<VAULT>/.obsidian/plugins/pc-ez-sync`
 
+## Android
+- [Issue #1](https://github.com/my-repositories/obsidian-pc-ez-sync/issues/1)
+  
+## macOS
+- [Issue #2](https://github.com/my-repositories/obsidian-pc-ez-sync/issues/2)
+
+## Linux
+- [Issue #3](https://github.com/my-repositories/obsidian-pc-ez-sync/issues/3)
+
 ## iOS
 - Установить приложение [TestFlight](https://apps.apple.com/ru/app/testflight/id899247664)
 - Установить приложение [a-Shell](https://testflight.apple.com/join/WUdKe3f4) 
