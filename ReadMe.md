@@ -13,7 +13,7 @@ Auto pull on open and push on close
 - Открыть `a-Shell`
 - Выбрать хранилище, используя команду `pickupFolder`
 - Сделать закладку на это хранилище `bookmark Obsidian`
-- Склонировать репозиторий ``
+- Склонировать репозиторий
 ```sh
 export PAT_TOKEN="ghp_ABCDEF"
 export REPO_OWNER="loktionov129"
