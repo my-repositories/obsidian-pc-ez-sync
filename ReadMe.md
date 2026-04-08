@@ -26,11 +26,12 @@ lg2 config user.email "loktionov129@gmail.com"
 
 ```
 - Создать команды `obsidian/pull` и `obsidian/push`
-- ```sh
+```sh
   jump Obsidian
-  
+```
+```sh
   sh "./${REPO_NAME}/.obsidian/ios_sync_{push|pull}.sh"
-  ```
+```
  ![](assets/a-shell_sync.png)
 - Настроить Выполнение этих команд при открытии/закрытии Obsidian
  ![](assets/apple_shortcuts.png)
