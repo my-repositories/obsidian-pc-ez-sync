@@ -16,6 +16,7 @@ Auto pull on open and push on close
 - [Issue #3](https://github.com/my-repositories/obsidian-pc-ez-sync/issues/3)
 
 ## iOS
+- Установить приложение [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334)
 - Установить приложение [TestFlight](https://apps.apple.com/ru/app/testflight/id899247664)
 - Установить приложение [a-Shell](https://testflight.apple.com/join/WUdKe3f4) 
 - Создать `PAT_TOKEN` на [GitHub](https://github.com/settings/tokens)
