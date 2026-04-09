@@ -29,23 +29,23 @@ Auto pull on open and push on close
 - Склонировать репозиторий
 ```sh
 export PAT_TOKEN="ghp_ABCDEF"
-export REPO_OWNER="loktionov129"
-export REPO_NAME="storage"
+export REPO_OWNER="my-repositories/"
+export REPO_NAME="obsidian-vault-demo"
 lg2 clone "https://${PAT_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git"
-mv "${REPO_NAME}.git" $REPO_NAME
-cd $REPO_NAME
+mv "${REPO_NAME}.git" obsidian-vault-main
+cd obsidian-vault-main
 lg2 config user.name "Aleksandr Loktionov"
 lg2 config user.email "loktionov129@gmail.com"
 
 ```
 
-- Создать скрипт `./${REPO_NAME}/.obsidian/ios_sync_pull.sh"`
+- Создать скрипт `./obsidian-vault-main/.obsidian/ios_sync_pull.sh"`
 ```sh
 #!/bin/sh
 (cd ./obsidian-vault-main && lg2 pull)
 ```
 
-- Создать скрипт `./${REPO_NAME}/.obsidian/ios_sync_push.sh"`
+- Создать скрипт `./obsidian-vault-main/.obsidian/ios_sync_push.sh"`
 ```sh
 #!/bin/sh
 (cd ./obsidian-vault-main  && lg2 add . && lg2 commit -m 'iOS sync' 2>/dev/null && lg2 push)
