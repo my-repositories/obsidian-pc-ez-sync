@@ -29,7 +29,7 @@ Auto pull on open and push on close
 - Склонировать репозиторий
 ```sh
 export PAT_TOKEN="ghp_ABCDEF"
-export REPO_OWNER="my-repositories/"
+export REPO_OWNER="my-repositories"
 export REPO_NAME="obsidian-vault-demo"
 lg2 clone "https://${PAT_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git"
 mv "${REPO_NAME}.git" obsidian-vault-main
