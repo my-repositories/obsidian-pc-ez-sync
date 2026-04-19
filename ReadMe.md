@@ -21,8 +21,8 @@ Auto pull on open and push on close
 ## iOS v1
 - Установить приложение [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334)
 - Установить приложение [GitSync](https://apps.apple.com/ca/app/gitsync/id6744980427)
-- ![](__attachments/gitsync_shortcuts.png)
-- ![](__attachments/gitsync_shortcuts2.png)
+- ![](assets/gitsync_shortcuts.png)
+- ![](assets/gitsync_shortcuts2.png)
 
 ## iOS v2
 - Установить приложение [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334)
