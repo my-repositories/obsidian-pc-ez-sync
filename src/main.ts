@@ -1,99 +1,80 @@
-import {App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidian';
-import {DEFAULT_SETTINGS, MyPluginSettings, SampleSettingTab} from "./settings";
+import { FileSystemAdapter, Notice, Plugin } from "obsidian";
+import { DEFAULT_SETTINGS, PcEzSyncSettingTab, PLUGIN_NAME, PcEzSyncSettings } from "./settings";
+import { runGitSync } from "./sync";
 
-// Remember to rename these classes and interfaces!
+export default class PcEzSyncPlugin extends Plugin {
+	settings!: PcEzSyncSettings;
+	private intervalId?: number;
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
-
-	async onload() {
+	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('dice', 'Sample', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
+		const adapter = this.app.vault.adapter;
+		if (!(adapter instanceof FileSystemAdapter)) {
+			new Notice("PC ez Sync requires a local folder vault.");
+			return;
+		}
+		const vaultPath = adapter.getBasePath();
+
+		this.addRibbonIcon("sync", PLUGIN_NAME, () => {
+			void this.runSync(vaultPath, { silent: false, blocking: false });
 		});
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status bar text');
+		this.addSettingTab(new PcEzSyncSettingTab(this.app, this));
 
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-modal-simple',
-			name: 'Open modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'replace-selected',
-			name: 'Replace selected content',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				editor.replaceSelection('Sample editor command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-modal-complex',
-			name: 'Open modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
+		void this.runSync(vaultPath, { silent: false, blocking: false });
 
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-				return false;
-			}
-		});
+		this.setupInterval();
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			new Notice("Click");
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-
+		this.registerEvent(
+			this.app.workspace.on("quit", () => {
+				void this.runSync(vaultPath, { silent: true, blocking: true });
+			}),
+		);
 	}
 
-	onunload() {
+	setupInterval(): void {
+		if (this.intervalId !== undefined) {
+			window.clearInterval(this.intervalId);
+			this.intervalId = undefined;
+		}
+
+		if (this.settings.syncInterval <= 0) {
+			return;
+		}
+
+		const adapter = this.app.vault.adapter;
+		if (!(adapter instanceof FileSystemAdapter)) {
+			return;
+		}
+		const vaultPath = adapter.getBasePath();
+		const ms = this.settings.syncInterval * 60 * 1000;
+		this.intervalId = window.setInterval(() => {
+			void this.runSync(vaultPath, { silent: true, blocking: false });
+		}, ms);
+		this.registerInterval(this.intervalId);
 	}
 
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<MyPluginSettings>);
+	runSync(path: string, options: { silent: boolean; blocking: boolean }): Promise<void> {
+		return runGitSync(path, PLUGIN_NAME, options, (message, isSilent, duration) =>
+			this.notify(message, isSilent, duration),
+		);
 	}
 
-	async saveSettings() {
+	notify(message: string, isSilent = false, duration = 5000): void {
+		const now = new Date().toLocaleTimeString();
+		console.log(`[${now}] ${PLUGIN_NAME}: ${message}`);
+
+		if (!isSilent) {
+			new Notice(message, duration);
+		}
+	}
+
+	async loadSettings(): Promise<void> {
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<PcEzSyncSettings>);
+	}
+
+	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
-	}
-}
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		let {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
 	}
 }
