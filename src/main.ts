@@ -56,8 +56,11 @@ export default class PcEzSyncPlugin extends Plugin {
 	}
 
 	runSync(path: string, options: { silent: boolean; blocking: boolean }): Promise<void> {
-		return runGitSync(path, PLUGIN_NAME, options, (message, isSilent, duration) =>
-			this.notify(message, isSilent, duration),
+		return runGitSync(
+			path,
+			PLUGIN_NAME,
+			{ ...options, commitTemplate: this.settings.commitTemplate },
+			(message, isSilent, duration) => this.notify(message, isSilent, duration),
 		);
 	}
 
