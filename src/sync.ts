@@ -36,24 +36,36 @@ export async function runGitSync(
 
 	const execute = createExecute(blocking, vaultPath);
 
+	const startTime = Date.now();
+
 	try {
 		const pullOut = await execute("git pull");
-		if (pullOut && !pullOut.includes("Already up to date.")) {
-			notify(`✅ ${pluginName}: Получены обновления`);
-		}
+		const pulledUpdates = Boolean(pullOut && !pullOut.includes("Already up to date."));
 
 		await execute("git add .");
 		const status = await execute("git status --porcelain");
+		const filesChanged = status.trim().split("\n").filter(Boolean).length;
 
-		if (status.trim().length > 0) {
+		let summary = "";
+		if (pulledUpdates) {
+			summary += "Получены обновления. ";
+		}
+		if (filesChanged > 0) {
 			await execute('git commit -m "PC auto-sync"');
 			await execute("git push");
-			notify(`✅ ${pluginName}: Изменения отправлены`, silent);
+			summary += "Изменения отправлены. ";
 		} else {
-			notify(`✅ ${pluginName}: Нет изменений`, silent);
+			summary += "Нет изменений. ";
 		}
+
+		const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+		notify(
+			`✅ ${pluginName}: ${summary}Синхронизировано за ${duration} с. Изменено файлов: ${filesChanged}`,
+			silent,
+		);
 	} catch (e: unknown) {
+		const duration = ((Date.now() - startTime) / 1000).toFixed(1);
 		const msg = e instanceof Error ? e.message : String(e);
-		notify(`❌ ${pluginName} Ошибка: ${msg}`, false, 0);
+		notify(`❌ ${pluginName} Ошибка (${duration} с): ${msg}`, false, 0);
 	}
 }
