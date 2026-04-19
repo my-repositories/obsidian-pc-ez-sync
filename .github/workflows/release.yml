@@ -23,21 +23,22 @@ jobs:
                   npm ci
                   npm run build
 
-            - name: Get version from manifest
-              id: manifest
+            - name: Read manifest and create release zip
+              id: bundle
               run: |
                   VERSION=$(node -p "JSON.parse(require('fs').readFileSync('manifest.json','utf8')).version")
+                  ID=$(node -p "JSON.parse(require('fs').readFileSync('manifest.json','utf8')).id")
+                  ARCHIVE="${ID}-${VERSION}.zip"
+                  zip "$ARCHIVE" main.js manifest.json styles.css
                   echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+                  echo "archive=$ARCHIVE" >> "$GITHUB_OUTPUT"
 
             - name: Create GitHub release
               uses: softprops/action-gh-release@v2
               with:
-                  tag_name: ${{ steps.manifest.outputs.version }}
-                  name: ${{ steps.manifest.outputs.version }}
+                  tag_name: ${{ steps.bundle.outputs.version }}
+                  name: ${{ steps.bundle.outputs.version }}
                   generate_release_notes: true
-                  files: |
-                      main.js
-                      manifest.json
-                      styles.css
+                  files: ${{ steps.bundle.outputs.archive }}
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
