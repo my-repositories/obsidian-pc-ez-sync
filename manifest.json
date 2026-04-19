@@ -2,7 +2,7 @@
     "id": "pc-ez-sync",
     "name": "PC ez Sync",
     "version": "1.0.0",
-    "minAppVersion": "0.15.0",
+	"minAppVersion": "0.15.0",
     "description": "Auto pull on open and push on close",
     "author": "Aleksandr Loktionov <loktionov129@gmail.com>",
     "isDesktopOnly": true
