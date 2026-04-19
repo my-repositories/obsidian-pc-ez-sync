@@ -1,10 +1,11 @@
 import { FileSystemAdapter, Notice, Plugin } from "obsidian";
 import { DEFAULT_SETTINGS, PcEzSyncSettingTab, PLUGIN_NAME, PcEzSyncSettings } from "./settings";
-import { runGitSync } from "./sync";
+import { SyncScheduler } from "./sync-scheduler";
 
 export default class PcEzSyncPlugin extends Plugin {
 	settings!: PcEzSyncSettings;
 	private intervalId?: number;
+	private sync?: SyncScheduler;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
@@ -16,27 +17,40 @@ export default class PcEzSyncPlugin extends Plugin {
 		}
 		const vaultPath = adapter.getBasePath();
 
+		const scheduler = new SyncScheduler(vaultPath, PLUGIN_NAME, () => this.settings.commitTemplate, (m, s, d) =>
+			this.notify(m, s, d),
+		);
+		this.sync = scheduler;
+
 		this.addRibbonIcon("sync", PLUGIN_NAME, () => {
-			void this.runSync(vaultPath, { silent: false, blocking: false });
+			void scheduler.runSync({ silent: false, blocking: false });
 		});
 
 		this.addCommand({
 			id: "manual-sync",
 			name: "Ручная синхронизация",
 			callback: () => {
-				void this.runSync(vaultPath, { silent: false, blocking: false });
+				void scheduler.runSync({ silent: false, blocking: false });
 			},
 		});
 
 		this.addSettingTab(new PcEzSyncSettingTab(this.app, this));
 
-		void this.runSync(vaultPath, { silent: false, blocking: false });
+		void scheduler.runSync({ silent: false, blocking: false });
 
 		this.setupInterval();
 
+		this.registerDomEvent(window, "online", () => {
+			this.sync?.scheduleFlushPending();
+		});
+
+		this.register(() => {
+			this.sync?.clearOnlineFlushTimer();
+		});
+
 		this.registerEvent(
 			this.app.workspace.on("quit", () => {
-				void this.runSync(vaultPath, { silent: true, blocking: true });
+				void this.sync?.runSync({ silent: true, blocking: true });
 			}),
 		);
 	}
@@ -55,21 +69,19 @@ export default class PcEzSyncPlugin extends Plugin {
 		if (!(adapter instanceof FileSystemAdapter)) {
 			return;
 		}
-		const vaultPath = adapter.getBasePath();
 		const ms = this.settings.syncInterval * 60 * 1000;
 		this.intervalId = window.setInterval(() => {
-			void this.runSync(vaultPath, { silent: true, blocking: false });
+			void this.sync?.runSync({ silent: true, blocking: false });
 		}, ms);
 		this.registerInterval(this.intervalId);
 	}
 
 	runSync(path: string, options: { silent: boolean; blocking: boolean }): Promise<void> {
-		return runGitSync(
-			path,
-			PLUGIN_NAME,
-			{ ...options, commitTemplate: this.settings.commitTemplate },
-			(message, isSilent, duration) => this.notify(message, isSilent, duration),
-		);
+		void path;
+		if (!this.sync) {
+			return Promise.resolve();
+		}
+		return this.sync.runSync(options);
 	}
 
 	notify(message: string, isSilent = false, duration = 5000): void {
