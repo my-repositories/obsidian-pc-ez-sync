@@ -18,13 +18,7 @@ export function runGitCommit(blocking: boolean, cwd: string, message: string): P
 export function createExecute(blocking: boolean, cwd: string): (cmd: string) => Promise<string> {
 	if (blocking) {
 		return (cmd: string) =>
-			Promise.resolve().then(() => {
-				try {
-					return execSync(cmd, { cwd }).toString();
-				} catch {
-					return "";
-				}
-			});
+			Promise.resolve().then(() => execSync(cmd, { cwd, encoding: "utf8" }));
 	}
 	return (cmd: string) =>
 		new Promise((resolve, reject) => {

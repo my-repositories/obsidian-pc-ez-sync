@@ -78,7 +78,10 @@ export default class PcEzSyncPlugin extends Plugin {
 
 	runSync(path: string, options: { silent: boolean; blocking: boolean }): Promise<void> {
 		void path;
-		return this.sync!.runSync(options);
+		if (!this.sync) {
+			return Promise.resolve();
+		}
+		return this.sync.runSync(options);
 	}
 
 	notify(message: string, isSilent = false, duration = 5000): void {

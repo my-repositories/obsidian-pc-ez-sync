@@ -33,9 +33,12 @@ export class SyncScheduler {
 	}
 
 	runSync(options: SyncRunOptions): Promise<void> {
-		const next = this.syncChain.then(() => this.runSyncAndCapture(options));
-		this.syncChain = next.catch(() => undefined);
-		return next;
+		const myTurn = this.syncChain.then(() => this.runSyncAndCapture(options));
+		const absorbed = myTurn.catch((err: unknown) => {
+			console.error(`[${this.pluginName}] sync failed`, err);
+		});
+		this.syncChain = absorbed;
+		return absorbed;
 	}
 
 	private async flushPendingIfOnline(): Promise<void> {

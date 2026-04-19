@@ -116,8 +116,24 @@ async function tryGitPush(
 	}
 }
 
+/** Heuristic: git often prints English even under localized UI; match common variants. */
 function pullIndicatesUpdates(pullOut: string): boolean {
-	return Boolean(pullOut && !pullOut.includes("Already up to date."));
+	const t = pullOut.trim();
+	if (!t) {
+		return false;
+	}
+	const lower = t.toLowerCase();
+	if (lower.includes("already up to date") || lower.includes("already up-to-date")) {
+		return false;
+	}
+	if (lower.includes("current branch is up to date")) {
+		return false;
+	}
+	// Russian locale (some Git builds)
+	if (lower.includes("уже актуально") || lower.includes("уже обновлено")) {
+		return false;
+	}
+	return true;
 }
 
 async function runOnlineSyncAfterPull(

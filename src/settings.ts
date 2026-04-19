@@ -34,7 +34,10 @@ export class PcEzSyncSettingTab extends PluginSettingTab {
 				text
 					.setValue(this.plugin.settings.syncInterval.toString())
 					.onChange(async (v) => {
-						this.plugin.settings.syncInterval = Number(v) || 0;
+						const raw = Number(v);
+						const n = Number.isFinite(raw) ? Math.trunc(raw) : 0;
+						const clamped = Math.min(Math.max(n, 0), 7 * 24 * 60);
+						this.plugin.settings.syncInterval = clamped;
 						await this.plugin.saveSettings();
 						this.plugin.setupInterval();
 					}),
