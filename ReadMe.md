@@ -18,7 +18,13 @@ Auto pull on open and push on close
 ## Linux
 - [Issue #3](https://github.com/my-repositories/obsidian-pc-ez-sync/issues/3)
 
-## iOS
+## iOS v1
+- Установить приложение [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334)
+- Установить приложение [GitSync](https://apps.apple.com/ca/app/gitsync/id6744980427)
+- ![](__attachments/gitsync_shortcuts.png)
+- ![](__attachments/gitsync_shortcuts2.png)
+
+## iOS v2
 - Установить приложение [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334)
 - Установить приложение [TestFlight](https://apps.apple.com/ru/app/testflight/id899247664)
 - Установить приложение [a-Shell](https://testflight.apple.com/join/WUdKe3f4) 
