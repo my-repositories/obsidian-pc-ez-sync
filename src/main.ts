@@ -26,7 +26,6 @@ export default class PcEzSyncPlugin extends Plugin {
 			callback: () => {
 				void this.runSync(vaultPath, { silent: false, blocking: false });
 			},
-			hotkeys: [{ modifiers: ["Mod", "Shift"], key: "s" }],
 		});
 
 		this.addSettingTab(new PcEzSyncSettingTab(this.app, this));
