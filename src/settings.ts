@@ -22,7 +22,8 @@ export class PcEzSyncSettingTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
-		containerEl.createEl("h2", { text: PLUGIN_NAME });
+
+		new Setting(containerEl).setName(PLUGIN_NAME).setHeading();
 
 		new Setting(containerEl)
 			.setName("Интервал (минуты)")

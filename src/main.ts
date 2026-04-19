@@ -11,7 +11,7 @@ export default class PcEzSyncPlugin extends Plugin {
 
 		const adapter = this.app.vault.adapter;
 		if (!(adapter instanceof FileSystemAdapter)) {
-			new Notice("PC ez Sync requires a local folder vault.");
+			new Notice("This plugin only works when the vault is a folder on this computer.");
 			return;
 		}
 		const vaultPath = adapter.getBasePath();
@@ -63,7 +63,7 @@ export default class PcEzSyncPlugin extends Plugin {
 
 	notify(message: string, isSilent = false, duration = 5000): void {
 		const now = new Date().toLocaleTimeString();
-		console.log(`[${now}] ${PLUGIN_NAME}: ${message}`);
+		console.debug(`[${now}] ${PLUGIN_NAME}: ${message}`);
 
 		if (!isSilent) {
 			new Notice(message, duration);
