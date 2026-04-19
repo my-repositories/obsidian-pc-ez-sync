@@ -1,8 +1,32 @@
-import { exec, execSync } from "child_process";
+import { exec, execFile, execFileSync, execSync } from "child_process";
 
 export interface RunSyncOptions {
 	silent: boolean;
 	blocking: boolean;
+	commitTemplate: string;
+}
+
+function expandCommitTemplate(template: string, filesChanged: number): string {
+	const now = new Date();
+	return template
+		.replace(/\{date\}/g, now.toLocaleDateString())
+		.replace(/\{time\}/g, now.toLocaleTimeString())
+		.replace(/\{files\}/g, String(filesChanged));
+}
+
+function runGitCommit(blocking: boolean, cwd: string, message: string): Promise<string> {
+	if (blocking) {
+		return Promise.resolve(execFileSync("git", ["commit", "-m", message], { cwd }).toString());
+	}
+	return new Promise((resolve, reject) => {
+		execFile("git", ["commit", "-m", message], { cwd }, (err, stdout) => {
+			if (err) {
+				reject(err instanceof Error ? err : new Error("git commit failed"));
+			} else {
+				resolve(stdout ?? "");
+			}
+		});
+	});
 }
 
 function createExecute(blocking: boolean, cwd: string): (cmd: string) => Promise<string> {
@@ -31,29 +55,43 @@ export async function runGitSync(
 	options: RunSyncOptions,
 	notify: (message: string, isSilent?: boolean, duration?: number) => void,
 ): Promise<void> {
-	const { silent, blocking } = options;
+	const { silent, blocking, commitTemplate } = options;
 	notify(`${pluginName}: Синхронизация...`, silent);
 
 	const execute = createExecute(blocking, vaultPath);
 
+	const startTime = Date.now();
+
 	try {
 		const pullOut = await execute("git pull");
-		if (pullOut && !pullOut.includes("Already up to date.")) {
-			notify(`✅ ${pluginName}: Получены обновления`);
-		}
+		const pulledUpdates = Boolean(pullOut && !pullOut.includes("Already up to date."));
 
 		await execute("git add .");
 		const status = await execute("git status --porcelain");
+		const filesChanged = status.trim().split("\n").filter(Boolean).length;
 
-		if (status.trim().length > 0) {
-			await execute('git commit -m "PC auto-sync"');
-			await execute("git push");
-			notify(`✅ ${pluginName}: Изменения отправлены`, silent);
-		} else {
-			notify(`✅ ${pluginName}: Нет изменений`, silent);
+		let summary = "";
+		if (pulledUpdates) {
+			summary += "Получены обновления. ";
 		}
+		if (filesChanged > 0) {
+			const template = commitTemplate.trim() || "Auto-sync {date} {time}";
+			const commitMessage = expandCommitTemplate(template, filesChanged);
+			await runGitCommit(blocking, vaultPath, commitMessage);
+			await execute("git push");
+			summary += "Изменения отправлены. ";
+		} else {
+			summary += "Нет изменений. ";
+		}
+
+		const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+		notify(
+			`✅ ${pluginName}: ${summary}Синхронизировано за ${duration} с. Изменено файлов: ${filesChanged}`,
+			silent,
+		);
 	} catch (e: unknown) {
+		const duration = ((Date.now() - startTime) / 1000).toFixed(1);
 		const msg = e instanceof Error ? e.message : String(e);
-		notify(`❌ ${pluginName} Ошибка: ${msg}`, false, 0);
+		notify(`❌ ${pluginName} Ошибка (${duration} с): ${msg}`, false, 0);
 	}
 }

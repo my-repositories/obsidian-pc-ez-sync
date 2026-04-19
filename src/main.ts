@@ -20,6 +20,14 @@ export default class PcEzSyncPlugin extends Plugin {
 			void this.runSync(vaultPath, { silent: false, blocking: false });
 		});
 
+		this.addCommand({
+			id: "manual-sync",
+			name: "Ручная синхронизация",
+			callback: () => {
+				void this.runSync(vaultPath, { silent: false, blocking: false });
+			},
+		});
+
 		this.addSettingTab(new PcEzSyncSettingTab(this.app, this));
 
 		void this.runSync(vaultPath, { silent: false, blocking: false });
@@ -56,8 +64,11 @@ export default class PcEzSyncPlugin extends Plugin {
 	}
 
 	runSync(path: string, options: { silent: boolean; blocking: boolean }): Promise<void> {
-		return runGitSync(path, PLUGIN_NAME, options, (message, isSilent, duration) =>
-			this.notify(message, isSilent, duration),
+		return runGitSync(
+			path,
+			PLUGIN_NAME,
+			{ ...options, commitTemplate: this.settings.commitTemplate },
+			(message, isSilent, duration) => this.notify(message, isSilent, duration),
 		);
 	}
 
