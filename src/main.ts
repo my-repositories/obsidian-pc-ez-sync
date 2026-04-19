@@ -20,6 +20,15 @@ export default class PcEzSyncPlugin extends Plugin {
 			void this.runSync(vaultPath, { silent: false, blocking: false });
 		});
 
+		this.addCommand({
+			id: "manual-sync",
+			name: "Ручная синхронизация",
+			callback: () => {
+				void this.runSync(vaultPath, { silent: false, blocking: false });
+			},
+			hotkeys: [{ modifiers: ["Mod", "Shift"], key: "s" }],
+		});
+
 		this.addSettingTab(new PcEzSyncSettingTab(this.app, this));
 
 		void this.runSync(vaultPath, { silent: false, blocking: false });
