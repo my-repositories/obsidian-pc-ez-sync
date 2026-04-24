@@ -47,12 +47,6 @@ export default class PcEzSyncPlugin extends Plugin {
 		this.register(() => {
 			this.sync?.clearOnlineFlushTimer();
 		});
-
-		this.registerEvent(
-			this.app.workspace.on("quit", () => {
-				void this.sync?.runSync({ silent: true, blocking: true });
-			}),
-		);
 	}
 
 	setupInterval(): void {
